@@ -73,40 +73,80 @@ let App = {
     // This function takes one address parameter called account    
     // Return the state object 
     async readUniversityState(account){
-        return await this.contract.methods.universities(account).call();
+        return await this.universities(account);
+    },
+
+    universities(account) {
+        return new Promise(resolve => {
+            this.contract.methods.universities(account).call()
+                .then( (receipt) => {
+                    return resolve( receipt);
+                });
+        });
     },
 
     // Register a university when this function is called
     // This function takes one address parameter called account
-    // Return the transaction object 
+    // Return the transaction object
     async registerUniversity(account){
-        const result = await this.contract.methods
-        .registerUniversity(account)
-        .send({ from: web3.eth.defaultAccount, gas: gasAmount });
-        return {receipt: result};
+        return await this.registerUniversityPromise(account);
+    },
+
+    registerUniversityPromise(account) {
+        return new Promise(resolve => {
+            this.contract.methods
+                .registerUniversity(account)
+                .send({from: web3.eth.defaultAccount, gas: gasAmount})
+                .on('receipt', function (receipt) {
+                    return resolve({receipt: receipt});
+                });
+        });
     },
 
     // Disable the university at the provided address when this function is called
     // This function takes one address parameter called account
     // Return the transaction object
     async disableUniversity(account){
-        const result = await this.contract.methods
-        .disableUniversity(account)
-        .send({ from: web3.eth.defaultAccount, gas: gasAmount });
-        return {receipt: result};
+        return await this.disableUniversityPromise(account);
+    },
+
+    disableUniversityPromise(account) {
+        return new Promise(resolve => {
+            this.contract.methods
+                .disableUniversity(account)
+                .send({ from: web3.eth.defaultAccount, gas: gasAmount })
+                .on('receipt', function (receipt) {
+                    return resolve({receipt: receipt});
+                });
+        });
     },
 
     // Submit a new project when this function is called
     // This function takes 3 parameters
-    //   - a projectHash, an address (universityAddress), and a number (amount to send with the transaction)   
-    // Return the transaction object 
+    //   - a projectHash, an address (universityAddress), and a number (amount to send with the transaction)
+    // Return the transaction object
     async submitProject(projectHash, universityAddress, amount){
-        const result = await this.contract.methods
-        .submitProject(projectHash, universityAddress)
-        .send({from: web3.eth.defaultAccount, gas: gasAmount,
-            value: web3.utils.toWei(amount.toString(), "ether")
+        return await this.submitProjectPromise(projectHash, universityAddress, amount);
+    },
+
+    submitProjectPromise(projectHash, universityAddress, amount) {
+        return new Promise((resolve, reject) => {
+            try {
+                this.contract.methods
+                    .submitProject(projectHash, universityAddress)
+                    .send({
+                        from: web3.eth.defaultAccount, gas: gasAmount,
+                        gasPrice: 10000000000,
+                        value: web3.utils.toHex(web3.utils.toWei(amount.toString(), "ether"))
+                    })
+                    .on('receipt', function (receipt) {
+                        return resolve({receipt: receipt});
+                    });
+            } catch(exc) {
+                console.log('ERROR ON SUBMITPROJECT');
+                return reject({receipt: null});
+            }
         });
-        return {receipt: result};
     },
 
     // Review a project when this function is called
@@ -114,10 +154,18 @@ let App = {
     //   - a projectHash and a number (status)
     // Return the transaction object
     async reviewProject(projectHash, status){
-        const result = await this.contract.methods
-        .reviewProject(projectHash, status)
-        .send({ from: web3.eth.defaultAccount, gas: gasAmount });
-        return {receipt: result};
+        return await this.reviewProjectPromise(projectHash, status);
+    },
+
+    reviewProjectPromise(projectHash, status) {
+        return new Promise(resolve => {
+            this.contract.methods
+                .reviewProject(projectHash, status)
+                .send({ from: web3.eth.defaultAccount, gas: gasAmount })
+                .on('receipt', function (receipt) {
+                    return resolve({receipt: receipt});
+                });
+        });
     },
 
     // Read a projects' state when this function is called
@@ -125,7 +173,16 @@ let App = {
     //   - a projectHash
     // Return the transaction object
     async readProjectState(projectHash){
-        return await this.contract.methods.projects(projectHash).call();
+        return await this.projects(projectHash);
+    },
+
+    projects(projectHash) {
+        return new Promise(resolve => {
+            this.contract.methods.projects(projectHash).call()
+                .then( (receipt) => {
+                    return resolve( receipt);
+                });
+        });
     },
 
     // Make a donation when this function is called
@@ -133,33 +190,63 @@ let App = {
     //   - a projectHash and a number (amount)
     // Return the transaction object
     async donate(projectHash, amount){
-        const result = await this.contract.methods.donate(projectHash).send({
-            from: web3.eth.defaultAccount,
-            gas: gasAmount,
-            value: web3.utils.toWei(amount.toString(), "ether")
+        return await this.donatePromise(projectHash, amount);
+    },
+
+    donatePromise(projectHash, amount) {
+        return new Promise((resolve, reject) => {
+            try {
+                this.contract.methods.donate(projectHash).send({
+                    from: web3.eth.defaultAccount,
+                    gas: gasAmount,
+                    gasPrice: 10000000000,
+                    value: web3.utils.toHex(web3.utils.toWei(amount.toString(), "ether"))
+                })
+                    .on('receipt', function (receipt) {
+                        return resolve({receipt: receipt});
+                    });
+            } catch(exc) {
+                console.log('ERROR ON donate');
+                return reject({receipt: null});
+            }
         });
-        return {receipt: result};
     },
 
     // Allow a university or the contract owner to withdraw their funds when this function is called
     // Return the transaction object
     async withdraw(){
-        const result = await this.contract.methods
-        .withdraw()
-        .send({ from: web3.eth.defaultAccount, gas: gasAmount });
-        return {receipt: result};
+        return await this.withdrawPromise();
+    },
+
+    withdrawPromise() {
+        return new Promise(resolve => {
+            this.contract.methods
+                .withdraw()
+                .send({ from: web3.eth.defaultAccount, gas: gasAmount })
+                .on('receipt', function (receipt) {
+                    return resolve({receipt: receipt});
+                });
+        });
     },
 
     // Allow a project author to withdraw their funds when this function is called
     // This function takes 1 parameter
     //   - a projectHash
-    // Use the following format to call this function: this.contract['withdraw(bytes32)'](...)
+    // Use the following format to call this function: this.contract.methods['withdraw(bytes32)'](...)
     // Return the transaction object
     async authorWithdraw(projectHash){
-        const result = await this.contract.methods
-        .withdraw(projectHash)
-        .send({ from: web3.eth.defaultAccount, gas: gasAmount });
-        return {receipt: result};
+        return await this.authorWithdrawPromise(projectHash);
+    },
+
+    authorWithdrawPromise(projectHash) {
+        return new Promise(resolve => {
+            this.contract.methods
+                .withdraw(projectHash)
+                .send({ from: web3.eth.defaultAccount, gas: gasAmount })
+                .on('receipt', function (receipt) {
+                    return resolve({receipt: receipt});
+                });
+        });
     }
 } 
 
