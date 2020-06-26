@@ -1,4 +1,4 @@
-pragma solidity >=0.4.21 <0.6.0; // Step 1
+pragma solidity >=0.5.0 <0.6.0; // Step 1
 
 contract ProjectSubmission { // Step 1
 
@@ -33,7 +33,7 @@ contract ProjectSubmission { // Step 1
     // defined a function modifier to control if project is on appropiate status to operate
     modifier checkProjectStatus(bytes32 _project, ProjectStatus _status) {
         require(
-            projects[_project].status == _status, "Project is not on appropriate status"
+            projects[_project].status == _status, "Project is on inappropriate status"
         );
         _;
     }
@@ -66,7 +66,7 @@ contract ProjectSubmission { // Step 1
     // defined a function to review a project
     function reviewProject(bytes32 _project, uint8 _status) public 
     onlyOwner checkProjectStatus(_project, ProjectStatus.Waiting) { // Step 3
-        require(_status == 1 || _status == 2, "Input Status is not appropriate");
+        require(_status == 1 || _status == 2, "Input Status is inappropriate");
         projects[_project].status = ProjectStatus(_status);
     }
     // defined a function to donate
@@ -90,7 +90,7 @@ contract ProjectSubmission { // Step 1
     }
     // defined a function to withdraw by project author
     function withdraw(bytes32 _project) public {  // Step 5 (Overloading Function)
-        require(msg.sender == projects[_project].author, "User unauthorized");
+        require(msg.sender == projects[_project].author, "Caller unauthorized");
         uint amount = projects[_project].balance;
         projects[_project].balance = 0;
         msg.sender.transfer(amount);
