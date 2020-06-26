@@ -6,6 +6,15 @@
     will likely be similar to the implementation required here, but could
     have significant differences as well.
 */
+/**
+ * With Geth client: To allow the promise to be executed without a timeout exception,
+     and to respect the timeblock delay, 
+     it is necessary to set the variable on the truffle-config file:
+     mocha: {
+         timeout: 10000
+     },
+     default is 2000
+ */
 
 let Web3 = require('web3')
 const ProjectSubmission = artifacts.require('ProjectSubmission')
@@ -43,8 +52,8 @@ let App = {
     // This function should update App.web3, App.networkId and App.contract
     async init() {
         this.web3 = web3 || new Web3(Web3.givenProvider || "ws://localhost:8545");
-        this.networkId = await web3.eth.net.getId();
-        this.contract = await new web3.eth.Contract(
+        this.networkId = await this.web3.eth.net.getId();
+        this.contract = await new this.web3.eth.Contract(
             ProjectSubmission.abi,
             ProjectSubmission.networks[this.networkId]
             && ProjectSubmission.networks[this.networkId].address
@@ -75,13 +84,24 @@ let App = {
     async readUniversityState(account){
         return await this.universities(account);
     },
-
+    // With Geth client: To allow the promise to be executed without a timeout exception,
+    // and to respect the timeblock delay 
+    // it is necessary to set the variable on the truffle-config file:
+    // mocha: {
+    //      timeout: 10000
+    // },
+    // default is 2000
     universities(account) {
-        return new Promise(resolve => {
-            this.contract.methods.universities(account).call()
-                .then( (receipt) => {
-                    return resolve( receipt);
+        return new Promise((resolve, reject) => {
+            try {
+                this.contract.methods.universities(account).call()
+                    .then( (receipt) => {
+                        return resolve( receipt);
                 });
+            } catch(exc) {
+                console.log('ERROR ON universities data');
+                return reject(null);
+            }
         });
     },
 
@@ -91,15 +111,26 @@ let App = {
     async registerUniversity(account){
         return await this.registerUniversityPromise(account);
     },
-
+    // With Geth client: To allow the promise to be executed without a timeout exception,
+    // and to respect the timeblock delay 
+    // it is necessary to set the variable on the truffle-config file:
+    // mocha: {
+    //      timeout: 10000
+    // },
+    // default is 2000
     registerUniversityPromise(account) {
-        return new Promise(resolve => {
-            this.contract.methods
-                .registerUniversity(account)
-                .send({from: web3.eth.defaultAccount, gas: gasAmount})
-                .on('receipt', function (receipt) {
-                    return resolve({receipt: receipt});
+        return new Promise((resolve, reject) => {
+            try {
+                this.contract.methods
+                    .registerUniversity(account)
+                    .send({from: web3.eth.defaultAccount, gas: gasAmount})
+                    .on('receipt', function (receipt) {
+                        return resolve({receipt: receipt});
                 });
+            } catch(exc) {
+                console.log('ERROR ON registerUniversity');
+                return reject({receipt: null});
+            }
         });
     },
 
@@ -109,15 +140,26 @@ let App = {
     async disableUniversity(account){
         return await this.disableUniversityPromise(account);
     },
-
+    // With Geth client: To allow the promise to be executed without a timeout exception,
+    // and to respect the timeblock delay 
+    // it is necessary to set the variable on the truffle-config file:
+    // mocha: {
+    //      timeout: 10000
+    // },
+    // default is 2000
     disableUniversityPromise(account) {
-        return new Promise(resolve => {
-            this.contract.methods
-                .disableUniversity(account)
-                .send({ from: web3.eth.defaultAccount, gas: gasAmount })
-                .on('receipt', function (receipt) {
-                    return resolve({receipt: receipt});
+        return new Promise((resolve, reject) => {
+            try {
+                this.contract.methods
+                    .disableUniversity(account)
+                    .send({ from: web3.eth.defaultAccount, gas: gasAmount })
+                    .on('receipt', function (receipt) {
+                        return resolve({receipt: receipt});
                 });
+            } catch(exc) {
+                console.log('ERROR ON disableUniversity');
+                return reject({receipt: null});
+            }
         });
     },
 
@@ -128,7 +170,13 @@ let App = {
     async submitProject(projectHash, universityAddress, amount){
         return await this.submitProjectPromise(projectHash, universityAddress, amount);
     },
-
+    // With Geth client: To allow the promise to be executed without a timeout exception,
+    // and to respect the timeblock delay 
+    // it is necessary to set the variable on the truffle-config file:
+    // mocha: {
+    //      timeout: 10000
+    // },
+    // default is 2000
     submitProjectPromise(projectHash, universityAddress, amount) {
         return new Promise((resolve, reject) => {
             try {
@@ -156,15 +204,26 @@ let App = {
     async reviewProject(projectHash, status){
         return await this.reviewProjectPromise(projectHash, status);
     },
-
+    // With Geth client: To allow the promise to be executed without a timeout exception,
+    // and to respect the timeblock delay 
+    // it is necessary to set the variable on the truffle-config file:
+    // mocha: {
+    //      timeout: 10000
+    // },
+    // default is 2000
     reviewProjectPromise(projectHash, status) {
-        return new Promise(resolve => {
-            this.contract.methods
-                .reviewProject(projectHash, status)
-                .send({ from: web3.eth.defaultAccount, gas: gasAmount })
-                .on('receipt', function (receipt) {
-                    return resolve({receipt: receipt});
+        return new Promise((resolve, reject) => {
+            try {
+                this.contract.methods
+                    .reviewProject(projectHash, status)
+                    .send({ from: web3.eth.defaultAccount, gas: gasAmount })
+                    .on('receipt', function (receipt) {
+                        return resolve({receipt: receipt});
                 });
+            } catch(exc) {
+                console.log('ERROR ON reviewproject');
+                return reject({receipt: null});
+            }
         });
     },
 
@@ -175,13 +234,24 @@ let App = {
     async readProjectState(projectHash){
         return await this.projects(projectHash);
     },
-
+    // With Geth client: To allow the promise to be executed without a timeout exception,
+    // and to respect the timeblock delay 
+    // it is necessary to set the variable on the truffle-config file:
+    // mocha: {
+    //      timeout: 10000
+    // },
+    // default is 2000
     projects(projectHash) {
-        return new Promise(resolve => {
-            this.contract.methods.projects(projectHash).call()
-                .then( (receipt) => {
-                    return resolve( receipt);
+        return new Promise((resolve, reject) => {
+            try {
+                this.contract.methods.projects(projectHash).call()
+                    .then( (receipt) => {
+                        return resolve( receipt);
                 });
+            } catch(exc) {
+                console.log('ERROR ON projects data');
+                return reject(null);
+            }
         });
     },
 
@@ -192,7 +262,13 @@ let App = {
     async donate(projectHash, amount){
         return await this.donatePromise(projectHash, amount);
     },
-
+    // With Geth client: To allow the promise to be executed without a timeout exception,
+    // and to respect the timeblock delay 
+    // it is necessary to set the variable on the truffle-config file:
+    // mocha: {
+    //      timeout: 10000
+    // },
+    // default is 2000
     donatePromise(projectHash, amount) {
         return new Promise((resolve, reject) => {
             try {
@@ -217,15 +293,26 @@ let App = {
     async withdraw(){
         return await this.withdrawPromise();
     },
-
+    // With Geth client: To allow the promise to be executed without a timeout exception,
+    // and to respect the timeblock delay 
+    // it is necessary to set the variable on the truffle-config file:
+    // mocha: {
+    //      timeout: 10000
+    // },
+    // default is 2000
     withdrawPromise() {
-        return new Promise(resolve => {
-            this.contract.methods
-                .withdraw()
-                .send({ from: web3.eth.defaultAccount, gas: gasAmount })
-                .on('receipt', function (receipt) {
-                    return resolve({receipt: receipt});
+        return new Promise((resolve, reject) => {
+            try {
+                this.contract.methods
+                    .withdraw()
+                    .send({ from: web3.eth.defaultAccount, gas: gasAmount })
+                    .on('receipt', function (receipt) {
+                        return resolve({receipt: receipt});
                 });
+            } catch(exc) {
+                console.log('ERROR ON withdraw');
+                return reject({receipt: null});
+            }
         });
     },
 
@@ -237,15 +324,26 @@ let App = {
     async authorWithdraw(projectHash){
         return await this.authorWithdrawPromise(projectHash);
     },
-
+    // With Geth client: To allow the promise to be executed without a timeout exception,
+    // and to respect the timeblock delay 
+    // it is necessary to set the variable on the truffle-config file:
+    // mocha: {
+    //      timeout: 10000
+    // },
+    // default is 2000
     authorWithdrawPromise(projectHash) {
-        return new Promise(resolve => {
-            this.contract.methods
-                .withdraw(projectHash)
-                .send({ from: web3.eth.defaultAccount, gas: gasAmount })
-                .on('receipt', function (receipt) {
-                    return resolve({receipt: receipt});
+        return new Promise((resolve, reject) => {
+            try {
+                this.contract.methods
+                    .withdraw(projectHash)
+                    .send({ from: web3.eth.defaultAccount, gas: gasAmount })
+                    .on('receipt', function (receipt) {
+                        return resolve({receipt: receipt});
                 });
+            } catch(exc) {
+                console.log('ERROR ON authorWithdraw');
+                return reject({receipt: null});
+            }
         });
     }
 } 
