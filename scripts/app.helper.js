@@ -87,15 +87,13 @@ let App = {
 
     universities(account) {
         return new Promise((resolve, reject) => {
-            try {
                 this.contract.methods.universities(account).call()
                     .then( (receipt) => {
                         return resolve( receipt);
+                }).catch( (exc) => {
+                    console.error('ERROR ON universities data: ', exc);
+                    return reject(exc);
                 });
-            } catch(exc) {
-                console.log('ERROR ON universities data');
-                return reject(null);
-            }
         });
     },
 
@@ -108,20 +106,16 @@ let App = {
 
     registerUniversityPromise(account) {
         return new Promise((resolve, reject) => {
-            try {
-                this.contract.methods
-                    .registerUniversity(account)
-                    .send({from: web3.eth.defaultAccount, gas: gasAmount})
-                    .on('receipt', function (receipt) {
-                        return resolve({receipt: receipt});
-                    }).on('error', function(error, errorreceipt) {
-                        return errorreceipt ? reject({receipt: errorreceipt})
-                        : reject({receipt: null});
-                    });
-            } catch(exc) {
-                console.log('ERROR ON registerUniversity');
-                return reject({receipt: null});
-            }
+            this.contract.methods
+                .registerUniversity(account)
+                .send({from: web3.eth.defaultAccount, gas: gasAmount})
+                .on('receipt', function (receipt) {
+                    return resolve({receipt: receipt});
+                }).on('error', function(error, errorreceipt) {
+                    return errorreceipt ? reject({receipt: errorreceipt})
+                    : reject(error);
+                });
+            
         });
     },
 
@@ -134,20 +128,15 @@ let App = {
 
     disableUniversityPromise(account) {
         return new Promise((resolve, reject) => {
-            try {
-                this.contract.methods
-                    .disableUniversity(account)
-                    .send({ from: web3.eth.defaultAccount, gas: gasAmount })
-                    .on('receipt', function (receipt) {
-                        return resolve({receipt: receipt});
-                    }).on('error', function(error, errorreceipt) {
-                        return errorreceipt ? reject({receipt: errorreceipt})
-                        : reject({receipt: null});
-                    });
-            } catch(exc) {
-                console.log('ERROR ON disableUniversity');
-                return reject({receipt: null});
-            }
+            this.contract.methods
+                .disableUniversity(account)
+                .send({ from: web3.eth.defaultAccount, gas: gasAmount })
+                .on('receipt', function (receipt) {
+                    return resolve({receipt: receipt});
+                }).on('error', function(error, errorreceipt) {
+                    return errorreceipt ? reject({receipt: errorreceipt})
+                    : reject(error);
+                });
         });
     },
 
@@ -161,24 +150,19 @@ let App = {
 
     submitProjectPromise(projectHash, universityAddress, amount) {
         return new Promise((resolve, reject) => {
-            try {
-                this.contract.methods
-                    .submitProject(projectHash, universityAddress)
-                    .send({
-                        from: web3.eth.defaultAccount, gas: gasAmount,
-                        gasPrice: 10000000000,
-                        value: web3.utils.toHex(web3.utils.toWei(amount.toString(), "ether"))
-                    })
-                    .on('receipt', function (receipt) {
-                        return resolve({receipt: receipt});
-                    }).on('error', function(error, errorreceipt) {
-                        return errorreceipt ? reject({receipt: errorreceipt})
-                        : reject({receipt: null});
-                    });
-            } catch(exc) {
-                console.log('ERROR ON SUBMITPROJECT');
-                return reject({receipt: null});
-            }
+            this.contract.methods
+                .submitProject(projectHash, universityAddress)
+                .send({
+                    from: web3.eth.defaultAccount, gas: gasAmount,
+                    gasPrice: 10000000000,
+                    value: web3.utils.toHex(web3.utils.toWei(amount.toString(), "ether"))
+                })
+                .on('receipt', function (receipt) {
+                    return resolve({receipt: receipt});
+                }).on('error', function(error, errorreceipt) {
+                    return errorreceipt ? reject({receipt: errorreceipt})
+                    : reject(error);
+                });
         });
     },
 
@@ -192,20 +176,15 @@ let App = {
 
     reviewProjectPromise(projectHash, status) {
         return new Promise((resolve, reject) => {
-            try {
-                this.contract.methods
-                    .reviewProject(projectHash, status)
-                    .send({ from: web3.eth.defaultAccount, gas: gasAmount })
-                    .on('receipt', function (receipt) {
-                        return resolve({receipt: receipt});
-                    }).on('error', function(error, errorreceipt) {
-                        return errorreceipt ? reject({receipt: errorreceipt})
-                        : reject({receipt: null});
-                    });
-            } catch(exc) {
-                console.log('ERROR ON reviewproject');
-                return reject({receipt: null});
-            }
+            this.contract.methods
+                .reviewProject(projectHash, status)
+                .send({ from: web3.eth.defaultAccount, gas: gasAmount })
+                .on('receipt', function (receipt) {
+                    return resolve({receipt: receipt});
+                }).on('error', function(error, errorreceipt) {
+                    return errorreceipt ? reject({receipt: errorreceipt})
+                    : reject(error);
+                });
         });
     },
 
@@ -219,15 +198,13 @@ let App = {
 
     projects(projectHash) {
         return new Promise((resolve, reject) => {
-            try {
-                this.contract.methods.projects(projectHash).call()
-                    .then( (receipt) => {
-                        return resolve( receipt);
-                });
-            } catch(exc) {
-                console.log('ERROR ON projects data');
-                return reject(null);
-            }
+            this.contract.methods.projects(projectHash).call()
+                .then( (receipt) => {
+                    return resolve( receipt);
+            }).catch(exc => {
+                console.error('ERROR ON projects data: ', exc);
+                return reject(exc);
+            });
         });
     },
 
@@ -241,23 +218,18 @@ let App = {
 
     donatePromise(projectHash, amount) {
         return new Promise((resolve, reject) => {
-            try {
-                this.contract.methods.donate(projectHash).send({
-                    from: web3.eth.defaultAccount,
-                    gas: gasAmount,
-                    gasPrice: 10000000000,
-                    value: web3.utils.toHex(web3.utils.toWei(amount.toString(), "ether"))
-                })
-                    .on('receipt', function (receipt) {
-                        return resolve({receipt: receipt});
-                    }).on('error', function(error, errorreceipt) {
-                        return errorreceipt ? reject({receipt: errorreceipt})
-                        : reject({receipt: null});
-                    });
-            } catch(exc) {
-                console.log('ERROR ON donate');
-                return reject({receipt: null});
-            }
+            this.contract.methods.donate(projectHash).send({
+                from: web3.eth.defaultAccount,
+                gas: gasAmount,
+                gasPrice: 10000000000,
+                value: web3.utils.toHex(web3.utils.toWei(amount.toString(), "ether"))
+            })
+                .on('receipt', function (receipt) {
+                    return resolve({receipt: receipt});
+                }).on('error', function(error, errorreceipt) {
+                    return errorreceipt ? reject({receipt: errorreceipt})
+                    : reject(error);
+                });
         });
     },
 
@@ -269,20 +241,15 @@ let App = {
 
     withdrawPromise() {
         return new Promise((resolve, reject) => {
-            try {
-                this.contract.methods
-                    .withdraw()
-                    .send({ from: web3.eth.defaultAccount, gas: gasAmount })
-                    .on('receipt', function (receipt) {
-                        return resolve({receipt: receipt});
-                    }).on('error', function(error, errorreceipt) {
-                        return errorreceipt ? reject({receipt: errorreceipt})
-                        : reject({receipt: null});
-                    });
-            } catch(exc) {
-                console.log('ERROR ON withdraw');
-                return reject({receipt: null});
-            }
+            this.contract.methods
+                .withdraw()
+                .send({ from: web3.eth.defaultAccount, gas: gasAmount })
+                .on('receipt', function (receipt) {
+                    return resolve({receipt: receipt});
+                }).on('error', function(error, errorreceipt) {
+                    return errorreceipt ? reject({receipt: errorreceipt})
+                    : reject(error);
+                });
         });
     },
 
@@ -297,20 +264,15 @@ let App = {
 
     authorWithdrawPromise(projectHash) {
         return new Promise((resolve, reject) => {
-            try {
-                this.contract.methods
-                    .withdraw(projectHash)
-                    .send({ from: web3.eth.defaultAccount, gas: gasAmount })
-                    .on('receipt', function (receipt) {
-                        return resolve({receipt: receipt});
-                    }).on('error', function(error, errorreceipt) {
-                        return errorreceipt ? reject({receipt: errorreceipt})
-                        : reject({receipt: null});
-                    });
-            } catch(exc) {
-                console.log('ERROR ON authorWithdraw');
-                return reject({receipt: null});
-            }
+            this.contract.methods
+                .withdraw(projectHash)
+                .send({ from: web3.eth.defaultAccount, gas: gasAmount })
+                .on('receipt', function (receipt) {
+                    return resolve({receipt: receipt});
+                }).on('error', function(error, errorreceipt) {
+                    return errorreceipt ? reject({receipt: errorreceipt})
+                    : reject(error);
+                });
         });
     }
 } 
