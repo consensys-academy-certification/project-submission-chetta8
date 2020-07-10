@@ -29,15 +29,15 @@ let App = {
         Ethereum account and corresponding contract state variables.
 
         When sending transactions to the contract, set the "from" account to
-        web3.eth.defaultAccount. The default account is changed in the ../test/test.app.js
+        this.web3.eth.defaultAccount. The default account is changed in the ../test/test.app.js
         file to simulate sending transactions from different accounts.
-          - i.e. myContract.myMethod({ from: web3.eth.defaultAccount ... })
+          - i.e. myContract.myMethod({ from: this.web3.eth.defaultAccount ... })
 
         Each function in the App object should return the full transaction object provided by
         web3.js. For example 
 
         async myFunction(){
-            let result = await myContract.myMethod({ from: web3.eth.defaultAccount ... })
+            let result = await myContract.myMethod({ from: this.web3.eth.defaultAccount ... })
             return result
         }
     */
@@ -62,7 +62,7 @@ let App = {
 
     // This function should get the account made available by web3 and update App.account
     async getAccount(){
-        this.account = web3.eth.defaultAccount;
+        this.account = this.web3.eth.defaultAccount;
     },
 
     // Read the owner state from the contract and update App.contractOwner
@@ -108,7 +108,7 @@ let App = {
         return new Promise((resolve, reject) => {
             this.contract.methods
                 .registerUniversity(account)
-                .send({from: web3.eth.defaultAccount, gas: gasAmount})
+                .send({from: this.web3.eth.defaultAccount, gas: gasAmount})
                 .on('receipt', function (receipt) {
                     return resolve({receipt: receipt});
                 }).on('error', function(error, errorreceipt) {
@@ -130,7 +130,7 @@ let App = {
         return new Promise((resolve, reject) => {
             this.contract.methods
                 .disableUniversity(account)
-                .send({ from: web3.eth.defaultAccount, gas: gasAmount })
+                .send({ from: this.web3.eth.defaultAccount, gas: gasAmount })
                 .on('receipt', function (receipt) {
                     return resolve({receipt: receipt});
                 }).on('error', function(error, errorreceipt) {
@@ -153,9 +153,9 @@ let App = {
             this.contract.methods
                 .submitProject(projectHash, universityAddress)
                 .send({
-                    from: web3.eth.defaultAccount, gas: gasAmount,
+                    from: this.web3.eth.defaultAccount, gas: gasAmount,
                     gasPrice: 10000000000,
-                    value: web3.utils.toHex(web3.utils.toWei(amount.toString(), "ether"))
+                    value: this.web3.utils.toHex(web3.utils.toWei(amount.toString(), "ether"))
                 })
                 .on('receipt', function (receipt) {
                     return resolve({receipt: receipt});
@@ -178,7 +178,7 @@ let App = {
         return new Promise((resolve, reject) => {
             this.contract.methods
                 .reviewProject(projectHash, status)
-                .send({ from: web3.eth.defaultAccount, gas: gasAmount })
+                .send({ from: this.web3.eth.defaultAccount, gas: gasAmount })
                 .on('receipt', function (receipt) {
                     return resolve({receipt: receipt});
                 }).on('error', function(error, errorreceipt) {
@@ -219,7 +219,7 @@ let App = {
     donatePromise(projectHash, amount) {
         return new Promise((resolve, reject) => {
             this.contract.methods.donate(projectHash).send({
-                from: web3.eth.defaultAccount,
+                from: this.web3.eth.defaultAccount,
                 gas: gasAmount,
                 gasPrice: 10000000000,
                 value: amount.toString()
@@ -243,7 +243,7 @@ let App = {
         return new Promise((resolve, reject) => {
             this.contract.methods
                 .withdraw()
-                .send({ from: web3.eth.defaultAccount, gas: gasAmount })
+                .send({ from: this.web3.eth.defaultAccount, gas: gasAmount })
                 .on('receipt', function (receipt) {
                     return resolve({receipt: receipt});
                 }).on('error', function(error, errorreceipt) {
@@ -266,7 +266,7 @@ let App = {
         return new Promise((resolve, reject) => {
             this.contract.methods
                 .withdraw(projectHash)
-                .send({ from: web3.eth.defaultAccount, gas: gasAmount })
+                .send({ from: this.web3.eth.defaultAccount, gas: gasAmount })
                 .on('receipt', function (receipt) {
                     return resolve({receipt: receipt});
                 }).on('error', function(error, errorreceipt) {
