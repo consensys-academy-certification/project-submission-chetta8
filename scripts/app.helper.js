@@ -222,7 +222,7 @@ let App = {
                 from: web3.eth.defaultAccount,
                 gas: gasAmount,
                 gasPrice: 10000000000,
-                value: web3.utils.toHex(web3.utils.toWei(amount.toString(), "ether"))
+                value: amount.toString()
             })
                 .on('receipt', function (receipt) {
                     return resolve({receipt: receipt});
